@@ -7,8 +7,8 @@ namespace nanobdd {
 extern Cache* cache;
 
 NodeTable::NodeTable(size_t tableSize) : tableSize_(tableSize) {
-  falseNode_ = getOrCreateNode(100, nullptr, nullptr);
-  trueNode_ = getOrCreateNode(100, nullptr, nullptr);
+  falseNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
+  trueNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
 }
 
 bool
