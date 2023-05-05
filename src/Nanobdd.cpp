@@ -3,6 +3,26 @@
 #include <nanobdd/nanobdd.h>
 #include <Prime.h>
 
+/**
+ * @mainpage Nanobdd Documentation
+ * @section intro_sec Introduction
+ * Nanobdd is a high-performance thread-safe BDD library written in C++.
+ * @section install_sec Installation
+ * ```
+ * cmake .
+ * make
+ * sudo make install
+ * ```
+ * @subsection install_dependencies Installing Dependencies
+ * ```
+ * sudo apt install -y libtbb-dev
+ * ```
+ * @subsection install_library Installing Library
+ * Do somethings ...
+ * @subsection install_example Installing Examples
+ * Do somethings ...
+ */
+
 namespace nanobdd {
 
 NodeTable* nodeTable;

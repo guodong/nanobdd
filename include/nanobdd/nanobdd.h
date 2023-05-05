@@ -5,24 +5,6 @@
 #include <stdint.h>
 #include <cstddef>
 
-/**
- * @mainpage Nanobdd Documentation
- * @section intro_sec Introduction
- * Nanobdd is a high-performance thread-safe BDD library written in C++.
- * @section install_sec Installation
- * ```
- * cmake
- * make
- * sudo make install
- * ```
- * @subsection install_dependencies Installing Dependencies
- * Do somethings ...
- * @subsection install_library Installing Library
- * Do somethings ...
- * @subsection install_example Installing Examples
- * Do somethings ...
- */
-
 namespace nanobdd {
 
 /**
@@ -34,10 +16,35 @@ namespace nanobdd {
  */
 void init(size_t tableSize, size_t cacheSize, size_t varNum);
 
+/**
+ * @brief Get the false terminal node as a Bdd
+ * 
+ * @return Bdd 
+ */
 Bdd bddFalse();
+
+
+/**
+ * @brief Get the true terminal node as a Bdd
+ * 
+ * @return Bdd 
+ */
 Bdd bddTrue();
 
+/**
+ * @brief Get the id-th variable
+ * 
+ * @param id The id/level of the variable, id must be less than varNum
+ * @return Bdd 
+ */
 Bdd getVar(uint32_t id);
+
+/**
+ * @brief Get the id-th negative variable
+ * 
+ * @param id The id/level of the variable, id must be less than varNum
+ * @return Bdd 
+ */
 Bdd getNvar(uint32_t id);
 
 } // namespace nanobdd
