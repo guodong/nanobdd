@@ -1,6 +1,6 @@
 #include <Cache.h>
 #include <NodeTable.h>
-#include <nanobdd.h>
+#include <nanobdd/nanobdd.h>
 #include <Prime.h>
 
 namespace nanobdd {

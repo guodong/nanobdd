@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Hash.h>
-#include <Node.h>
+#include <nanobdd/Node.h>
 #include <tbb/concurrent_vector.h>
 #include <shared_mutex>
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Node.h>
+#include <nanobdd/Node.h>
+#include <nanobdd/NodeTable.h>
 
 namespace nanobdd {
 
@@ -19,6 +20,14 @@ class Bdd {
 
   Node* root() const {
     return root_;
+  }
+
+  bool isFalse() const {
+    return root_ == nodeTable->falseNode();
+  }
+
+  bool isTrue() const {
+    return root_ == nodeTable->trueNode();
   }
 
   Bdd operator&(const Bdd& r) const {
@@ -67,7 +76,7 @@ class Bdd {
     return root_ < r.root();
   }
 
- private:
+ protected:
   Node* root_;
 };
 

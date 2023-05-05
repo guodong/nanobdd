@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Bdd.h>
+#include <nanobdd/Bdd.h>
 
 #include <stdint.h>
 #include <cstddef>

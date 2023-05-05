@@ -20,15 +20,19 @@ target_include_directories(${PROJECT_NAME}
   PRIVATE
     # where the library itself will look for its internal headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
   PUBLIC
     # where top-level project will look for the library's public headers
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
     # where external projects will look for the library's public headers
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 set(public_headers
-    include/nanobdd.h
+  include/nanobdd/nanobdd.h
+  include/nanobdd/Bdd.h
+  include/nanobdd/Node.h
+  include/nanobdd/NodeTable.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
@@ -41,5 +45,5 @@ install(TARGETS ${PROJECT_NAME}
   #ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # lib
   # except for public headers, as we want them to be inside a library folder
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME} # include/SomeLibrary
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # include
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME} # include
 )
