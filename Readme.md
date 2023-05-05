@@ -3,7 +3,7 @@ First-ever high-performance thread-safe BDD (Binary Decision Diagrams) library.
 
 # Basic usage
 A simple c++ code to use nanobdd is as follows:
-```
+```c++
 // include the nanobdd header file
 #include <nanobdd/nanobdd.h>
 #include <assert.h>
@@ -19,10 +19,10 @@ int main(int argc, char** argv) {
 
   // do magic using c++ operators
   auto xy = x & y;
-  auto xyz = xy | z;
-  auto xyzZ = xyz | !z;
+  auto xyz = xy & z;
+  auto xyZ = xy & !z;
 
-  assert(xy == xyzZ);
+  assert(xy == xyz | xyZ);
   assert(xy != nanobdd::bddFalse());
 
   return 0;
@@ -37,7 +37,7 @@ g++ [file] -lnanobdd
 # Thread-safe concurrency
 The most powerful feature of nanobdd is that it is thread-safe, that means one can safely perform any bdd operations in different threads, nanobdd will handle all underlay data contensions.
 An example for using C++17 parallel STL:
-```
+```c++
 std::for_each(
   std::execution::par,
   somebdds.begin(),
