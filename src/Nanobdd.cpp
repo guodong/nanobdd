@@ -1,7 +1,8 @@
 #include <Cache.h>
 #include <NodeTable.h>
-#include <nanobdd/nanobdd.h>
 #include <Prime.h>
+#include <assert.h>
+#include <nanobdd/nanobdd.h>
 
 /**
  * @mainpage Nanobdd Documentation
@@ -28,8 +29,7 @@ namespace nanobdd {
 NodeTable* nodeTable;
 Cache* cache;
 
-static std::vector<Bdd> vars_;
-static std::vector<Bdd> nvars_;
+static size_t varNum_;
 
 void
 init(size_t tableSize, size_t cacheSize, size_t varNum) {
@@ -38,13 +38,18 @@ init(size_t tableSize, size_t cacheSize, size_t varNum) {
   for (int id = 0; id < varNum; ++id) {
     nodeTable->createVar(id);
   }
+  varNum_ = varNum;
 }
 
-Bdd getVar(uint32_t id) {
+Bdd
+getVar(uint32_t id) {
+  assert(id < varNum_);
   return nodeTable->getVar(id);
 }
 
-Bdd getNvar(uint32_t id) {
+Bdd
+getNvar(uint32_t id) {
+  assert(id < varNum_);
   return nodeTable->getNvar(id);
 }
 
