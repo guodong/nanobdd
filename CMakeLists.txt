@@ -32,7 +32,6 @@ set(public_headers
   include/nanobdd/nanobdd.h
   include/nanobdd/Bdd.h
   include/nanobdd/Node.h
-  include/nanobdd/NodeTable.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")

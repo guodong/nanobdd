@@ -1,80 +1,42 @@
 #pragma once
 
 #include <nanobdd/Node.h>
-#include <nanobdd/NodeTable.h>
 
 namespace nanobdd {
 
-extern NodeTable* nodeTable;
-
 class Bdd {
  public:
-  Bdd() : root_(nodeTable->falseNode()) {}
-  Bdd(Node* root) : root_(root) {};
-  ~Bdd() {};
+  Bdd();
+  Bdd(Node* root);
+  ~Bdd();
 
-  Bdd& operator=(Bdd r) {
-    root_ = r.root();
-    return *this;
-  }
+  Bdd& operator=(Bdd r);
 
-  Node* root() const {
-    return root_;
-  }
+  Node* root() const;
 
-  bool isFalse() const {
-    return root_ == nodeTable->falseNode();
-  }
+  bool isFalse() const;
 
-  bool isTrue() const {
-    return root_ == nodeTable->trueNode();
-  }
+  bool isTrue() const;
 
-  Bdd operator&(const Bdd& r) const {
-    return nodeTable->bddAnd(root_, r.root());
-  }
+  Bdd operator&(const Bdd& r) const;
 
-  Bdd&
-  operator&=(const Bdd& r) {
-    root_ = nodeTable->bddAnd(root_, r.root());
-    return *this;
-  }
+  Bdd& operator&=(const Bdd& r);
 
-  Bdd operator|(const Bdd& r) const {
-    return nodeTable->bddOr(root_, r.root());
-  }
+  Bdd operator|(const Bdd& r) const;
 
-  Bdd&
-  operator|=(const Bdd& r) {
-    root_ = nodeTable->bddOr(root_, r.root());
-    return *this;
-  }
+  Bdd& operator|=(const Bdd& r);
 
-  Bdd operator!() const {
-    return nodeTable->bddNot(root_);
-  }
+  Bdd operator!() const;
 
-  Bdd operator-(const Bdd& r) const {
-    return nodeTable->bddDiff(root_, r.root());
-  }
+  Bdd operator-(const Bdd& r) const;
 
-  Bdd&
-  operator-=(const Bdd& r) {
-    root_ = nodeTable->bddDiff(root_, r.root());
-    return *this;
-  }
+  Bdd& operator-=(const Bdd& r);
 
-  bool operator==(const Bdd& r) const {
-    return root_ == r.root();
-  }
+  bool operator==(const Bdd& r) const;
 
-  bool operator!=(const Bdd& r) const {
-    return root_ != r.root();
-  }
+  bool operator!=(const Bdd& r) const;
 
-  bool operator<(const Bdd& r) const {
-    return root_ < r.root();
-  }
+  bool operator<(const Bdd& r) const;
 
  protected:
   Node* root_;
