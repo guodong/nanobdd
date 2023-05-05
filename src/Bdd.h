@@ -18,8 +18,15 @@ class Bdd {
   Bdd operator&(const Bdd& r) const {
     return nodeTable->bddAnd(root_, r.root());
   };
-  Bdd operator|(const Bdd& r) const;
-  Bdd operator!() const;
+  Bdd operator|(const Bdd& r) const {
+    return nodeTable->bddOr(root_, r.root());
+  };
+  Bdd operator!() const {
+    return nodeTable->bddNot(root_);
+  };
+  Bdd operator-(const Bdd& r) const {
+    return nodeTable->bddDiff(root_, r.root());
+  }
 
  private:
   Node* root_;
