@@ -11,7 +11,7 @@ class Bdd {
  public:
   Bdd() : root_(nodeTable->falseNode()) {}
   Bdd(Node* root) : root_(root) {};
-  ~Bdd();
+  ~Bdd() {};
 
   Bdd& operator=(Bdd r) {
     root_ = r.root();
