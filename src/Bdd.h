@@ -26,7 +26,7 @@ class Bdd {
   }
 
   Bdd&
-  operator|=(const Bdd& r) {
+  operator&=(const Bdd& r) {
     root_ = nodeTable->bddAnd(root_, r.root());
     return *this;
   }
@@ -35,12 +35,24 @@ class Bdd {
     return nodeTable->bddOr(root_, r.root());
   }
 
+  Bdd&
+  operator|=(const Bdd& r) {
+    root_ = nodeTable->bddOr(root_, r.root());
+    return *this;
+  }
+
   Bdd operator!() const {
     return nodeTable->bddNot(root_);
   }
 
   Bdd operator-(const Bdd& r) const {
     return nodeTable->bddDiff(root_, r.root());
+  }
+
+  Bdd&
+  operator-=(const Bdd& r) {
+    root_ = nodeTable->bddDiff(root_, r.root());
+    return *this;
   }
 
   bool operator==(const Bdd& r) const {

@@ -35,5 +35,9 @@ namespace nanobdd {
 void init(size_t tableSize, size_t cacheSize, size_t varNum);
 
 Bdd bddFalse();
+Bdd bddTrue();
+
+Bdd getVar(uint32_t id);
+Bdd getNvar(uint32_t id);
 
 } // namespace nanobdd

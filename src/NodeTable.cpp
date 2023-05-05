@@ -11,6 +11,15 @@ NodeTable::NodeTable(size_t tableSize) : tableSize_(tableSize) {
   trueNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
 }
 
+Node*
+NodeTable::createVar(uint32_t id) {
+  auto node = getOrCreateNode(id, falseNode_, trueNode_);
+  vars_.emplace(vars_.begin() + id, node);
+  auto nvar = getOrCreateNode(id, trueNode_, falseNode_);
+  nvars_.emplace(nvars_.begin() + id, nvar);
+  return vars_.at(id);
+}
+
 bool
 NodeTable::isFalse(const Node* node) const {
   return node == falseNode_;

@@ -46,10 +46,19 @@ class NodeTable {
   falseNode() {
     return falseNode_;
   }
+
   Node*
   trueNode() {
     return trueNode_;
   }
+
+  Node* createVar(uint32_t id);
+  Node* getVar(uint32_t id) {
+    return vars_.at(id);
+  };
+  Node* getNvar(uint32_t id) {
+    return nvars_.at(id);
+  };
 
   Node* bddAnd(Node* x, Node* y);
   Node* bddOr(Node* x, Node* y);
@@ -75,6 +84,8 @@ class NodeTable {
   std::vector<Bucket> buckets_;
   Node* falseNode_;
   Node* trueNode_;
+  std::vector<Node*> vars_;
+  std::vector<Node*> nvars_;
 };
 
 } // namespace nanobdd
