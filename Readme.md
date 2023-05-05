@@ -22,17 +22,19 @@ int main(int argc, char** argv) {
   auto xyz = xy & z;
   auto xyZ = xy & !z;
 
-  assert(xy == xyz | xyZ);
+  assert(xy == (xyz | xyZ));
   assert(xy != nanobdd::bddFalse());
 
   return 0;
 }
 ```
 
-Compile the above code by:
+Compile and execute the above code by:
 ```
-g++ [file] -lnanobdd
+g++ -o exe test.cpp -lnanobdd -ltbb
+./exe
 ```
+If no exceptions, that means the assertions are passed.
 
 # Thread-safe concurrency
 The most powerful feature of nanobdd is that it is thread-safe, that means one can safely perform any bdd operations in different threads, nanobdd will handle all underlay data contensions.
