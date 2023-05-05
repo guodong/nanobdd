@@ -6,21 +6,20 @@ include(GNUInstallDirs)
 project(nanobdd)
 
 add_library(${PROJECT_NAME}
-  ${LIBRARY_HEADERS}
-  ${LIBRARY_SOURCE}
+  src/Nanobdd.cpp
+  src/NodeTable.cpp
+  src/Bdd.cpp
 )
 
-target_sources(${PROJECT_NAME}
-  PRIVATE
-    src/Nanobdd.cpp
-    src/NodeTable.cpp
+target_link_libraries(${PROJECT_NAME}
+  tbb
 )
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE
     # where the library itself will look for its internal headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    # ${CMAKE_CURRENT_SOURCE_DIR}/include
   PUBLIC
     # where top-level project will look for the library's public headers
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
@@ -31,13 +30,13 @@ target_include_directories(${PROJECT_NAME}
 set(public_headers
   include/nanobdd/nanobdd.h
   include/nanobdd/Bdd.h
-  include/nanobdd/Node.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 
 install(TARGETS ${PROJECT_NAME}
   EXPORT "${PROJECT_NAME}Targets"
+  LIBRARY DESTINATION lib
   # these get default values from GNUInstallDirs, no need to set them
   #RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} # bin
   #LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # lib
