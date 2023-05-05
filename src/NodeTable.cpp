@@ -1,4 +1,5 @@
 #include <Cache.h>
+#include <Common.h>
 #include <Hash.h>
 #include <NodeTable.h>
 
@@ -48,9 +49,9 @@ NodeTable::bddAnd(Node* x, Node* y) {
 
   auto hash =
       HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), 0) %
+          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::AND) %
       cache->size();
-  auto cached = cache->lookup(hash, x, y, 0);
+  auto cached = cache->lookup(hash, x, y, Operator::AND);
   if (cached) {
     return cached;
   }
@@ -60,7 +61,7 @@ NodeTable::bddAnd(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, 0);
+  cache->insert(hash, res, x, y, Operator::AND);
 
   return res;
 }
@@ -83,9 +84,9 @@ NodeTable::bddOr(Node* x, Node* y) {
 
   auto hash =
       HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), 1) %
+          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::OR) %
       cache->size();
-  auto cached = cache->lookup(hash, x, y, 1);
+  auto cached = cache->lookup(hash, x, y, Operator::OR);
   if (cached) {
     return cached;
   }
@@ -95,7 +96,7 @@ NodeTable::bddOr(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, 1);
+  cache->insert(hash, res, x, y, Operator::OR);
 
   return res;
 }
@@ -110,8 +111,8 @@ NodeTable::bddNot(Node* x) {
   }
 
   // auto hash = TRIPLEp(x.node(), nullptr, 2) % Nanobdd::cacheSize_;
-  auto hash = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x), 0, 2) % cache->size();
-  auto cached = cache->lookup(hash, x, nullptr, 2);
+  auto hash = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x), 0, Operator::NOT) % cache->size();
+  auto cached = cache->lookup(hash, x, nullptr, Operator::NOT);
   if (cached) {
     return cached;
   }
@@ -123,7 +124,7 @@ NodeTable::bddNot(Node* x) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, nullptr, 2);
+  cache->insert(hash, res, x, nullptr, Operator::NOT);
 
   return res;
 }
@@ -141,9 +142,9 @@ NodeTable::bddDiff(Node* x, Node* y) {
 
   auto hash =
       HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), 3) %
+          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::DIFF) %
       cache->size();
-  auto cached = cache->lookup(hash, x, y, 3);
+  auto cached = cache->lookup(hash, x, y, Operator::DIFF);
   if (cached) {
     return cached;
   }
@@ -153,7 +154,7 @@ NodeTable::bddDiff(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, 3);
+  cache->insert(hash, res, x, y, Operator::DIFF);
 
   return res;
 }
