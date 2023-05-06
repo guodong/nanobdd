@@ -5,10 +5,15 @@ include(GNUInstallDirs)
 
 project(nanobdd)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 add_library(${PROJECT_NAME}
   src/Nanobdd.cpp
-  src/NodeTable.cpp
   src/Bdd.cpp
+  src/Cache.cpp
+  src/NodeTable.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -36,12 +41,24 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers
 
 install(TARGETS ${PROJECT_NAME}
   EXPORT "${PROJECT_NAME}Targets"
-  LIBRARY DESTINATION lib
   # these get default values from GNUInstallDirs, no need to set them
   #RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} # bin
-  #LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # lib
-  #ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # lib
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} # lib
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} # lib
   # except for public headers, as we want them to be inside a library folder
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME} # include/SomeLibrary
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME} # include
+)
+include(CMakePackageConfigHelpers)
+
+install(
+  EXPORT ${PROJECT_NAME}Targets
+  FILE nanobddTargets.cmake
+  NAMESPACE nanobdd::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/nanobdd
+)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/nanobdd.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/nanobdd.pc" @ONLY)
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/nanobdd.pc"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
 )

@@ -40,7 +40,7 @@ Cache::insert(uint32_t hash, Node* node, Node* left, Node* right, uint32_t op) {
   }
 }
 
-bool isCommutativeOperator(Operator op) {
+bool Cache::isCommutativeOperator(Operator op) {
   // and/or/not are commutative
   return op <= 2;
 }
