@@ -21,12 +21,12 @@ NodeTable::createVar(uint32_t id) {
   return vars_.at(id);
 }
 
-bool
+inline bool
 NodeTable::isFalse(const Node* node) const {
   return node == falseNode_;
 }
 
-bool
+inline bool
 NodeTable::isTrue(const Node* node) const {
   return node == trueNode_;
 }
@@ -159,7 +159,7 @@ NodeTable::bddDiff(Node* x, Node* y) {
   return res;
 }
 
-Node*
+inline Node*
 NodeTable::negCof(Node* x, int id) {
   // check id <= root_
   if (id < x->level) {
@@ -169,7 +169,7 @@ NodeTable::negCof(Node* x, int id) {
   }
 }
 
-Node*
+inline Node*
 NodeTable::posCof(Node* x, int id) {
   // check id <= root_
   if (id < x->level) {
@@ -179,7 +179,7 @@ NodeTable::posCof(Node* x, int id) {
   }
 }
 
-Node*
+inline Node*
 NodeTable::combine(uint32_t level, Node* low, Node* high) {
   if (low == high) {
     return low;

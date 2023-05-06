@@ -53,12 +53,12 @@ getNvar(uint32_t id) {
   return nodeTable->getNvar(id);
 }
 
-Bdd
+inline Bdd
 bddFalse() {
   return Bdd(nodeTable->falseNode());
 }
 
-Bdd
+inline Bdd
 bddTrue() {
   return Bdd(nodeTable->trueNode());
 }

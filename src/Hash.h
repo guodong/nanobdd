@@ -1,5 +1,5 @@
-#define HASH_O_2(a, b) (((uint32_t)a + (uint32_t)b) * ((uint32_t)a + (uint32_t)b + 1) / 2 + (uint32_t)a)
-#define HASH_UO_2(a, b) (((uint32_t)a + (uint32_t)b) * ((uint32_t)a + (uint32_t)b + 1) / 2 + (uint32_t)1)
+#define HASH_O_2(a, b) (((uint32_t)a + (uint32_t)b) * ((uint32_t)a + (uint32_t)b + 1) >> 1 + (uint32_t)a)
+#define HASH_UO_2(a, b) (((uint32_t)a + (uint32_t)b) * ((uint32_t)a + (uint32_t)b + 1) >> 1 + (uint32_t)1)
 #define HASH_O_3(a, b, c) ((HASH_O_2(c, HASH_O_2(a, b))))
 #define HASH_UO_3(a, b, c) ((HASH_UO_2(c, HASH_UO_2(a, b))))
 #define HASH_UO_O_3(a, b, c) ((HASH_O_2(c, HASH_UO_2(a, b))))
