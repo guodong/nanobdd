@@ -68,6 +68,7 @@ std::for_each(
     // operate your bdd here
   });
 ```
+See `examples/paralle.cpp` for full example.
 
 # Performance
 We have compared nanobdd with other librarys including Buddy, JDD and Sylvan in a network verification project on a 40 CPU cores server. Typically, nanobdd is 2~10x faster than others.
