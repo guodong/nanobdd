@@ -7,7 +7,7 @@ To our knowledge, nanobdd is The world's fastest BDD library so far.
 ## Dependencies
 Nanobdd depends on tbb for concurrent data structures. 
 
-CMake (>=v3.6) and g++(>=9) is required for compilation.
+CMake (>=v3.2) and g++(>=v9) is required for compilation.
 
 ## Compile and install
 Nanobdd follows the standard CMake project structure, the quick installation steps are as follows:
