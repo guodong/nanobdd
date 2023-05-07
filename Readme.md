@@ -1,6 +1,26 @@
 # Nanobdd
 First-ever high-performance thread-safe BDD (Binary Decision Diagrams) library.
 
+To our knowledge, nanobdd is The world's fastest BDD library so far.
+
+# Install
+## Dependencies
+Nanobdd depends on tbb for concurrent data structures. 
+
+CMake (>=v3.6) and g++(>=9) is required for compilation.
+
+## Compile and install
+Nanobdd follows the standard CMake project structure, the quick installation steps are as follows:
+```
+git clone https://github.com/guodong/nanobdd
+cd nanobdd
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
 # Basic usage
 A simple c++ code to use nanobdd is as follows:
 ```c++
