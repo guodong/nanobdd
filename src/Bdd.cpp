@@ -5,9 +5,13 @@ namespace nanobdd {
 
 extern NodeTable* nodeTable;
 
-Bdd::Bdd() : root_(nodeTable->falseNode()) {}
+Bdd::Bdd() : root_(nodeTable->falseNode()) {
+  root_->ref();
+}
 Bdd::Bdd(Node* root) : root_(root){};
-Bdd::~Bdd(){};
+Bdd::~Bdd(){
+  root_->deref();
+};
 
 Bdd&
 Bdd::operator=(Bdd r) {
