@@ -8,7 +8,9 @@ extern NodeTable* nodeTable;
 Bdd::Bdd() : root_(nodeTable->falseNode()) {
   root_->ref();
 }
-Bdd::Bdd(Node* root) : root_(root){};
+Bdd::Bdd(Node* root) : root_(root){
+  root_->ref();
+};
 Bdd::~Bdd(){
   root_->deref();
 };
