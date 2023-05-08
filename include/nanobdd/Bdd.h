@@ -36,6 +36,10 @@ class Bdd {
 
   Bdd& operator-=(const Bdd& r);
 
+  Bdd operator>>(const Bdd& r) const;
+
+  Bdd& operator>>=(const Bdd& r);
+
   bool operator==(const Bdd& r) const;
 
   bool operator!=(const Bdd& r) const;

@@ -191,6 +191,36 @@ NodeTable::bddDiff(Node* x, Node* y) {
   return res;
 }
 
+Node*
+NodeTable::bddImp(Node* x, Node* y) {
+  if (isFalse(x) || isTrue(y)) {
+    return trueNode_;
+  }
+  if (isTrue(x)) {
+    return y;
+  }
+
+  int m = std::min(x->level, y->level);
+
+  auto hash =
+      HASH_UO_O_3(
+          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::IMP) %
+      cache->size();
+  auto cached = cache->lookup(hash, x, y, Operator::IMP);
+  if (cached) {
+    return cached;
+  }
+
+  auto fLow = bddDiff(negCof(x, m), negCof(y, m));
+  auto fHigh = bddDiff(posCof(x, m), posCof(y, m));
+
+  auto res = combine(m, fLow, fHigh);
+
+  cache->insert(hash, res, x, y, Operator::IMP);
+
+  return res;
+}
+
 inline Node*
 NodeTable::negCof(Node* x, int id) {
   // check id <= root_

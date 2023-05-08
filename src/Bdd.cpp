@@ -79,6 +79,17 @@ Bdd::operator-=(const Bdd& r) {
   return *this;
 }
 
+Bdd
+Bdd::operator>>(const Bdd& r) const {
+  return nodeTable->bddImp(root_, r.root());
+}
+
+Bdd&
+Bdd::operator>>=(const Bdd& r) {
+  root_ = nodeTable->bddImp(root_, r.root());
+  return *this;
+}
+
 bool
 Bdd::operator==(const Bdd& r) const {
   return root_ == r.root();

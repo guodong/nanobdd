@@ -64,6 +64,7 @@ class NodeTable {
   Node* bddNot(Node* x);
   Node* bddXor(Node* x, Node* y);
   Node* bddDiff(Node* x, Node* y);
+  Node* bddImp(Node* x, Node* y);
 
   /**
    * Get or create a node
