@@ -3,11 +3,15 @@
 #include <Hash.h>
 #include <NodeTable.h>
 
+#include <algorithm>
+#include <execution>
+
 namespace nanobdd {
 
 extern Cache* cache;
 
-NodeTable::NodeTable(size_t tableSize) : tableSize_(tableSize), buckets_(tableSize) {
+NodeTable::NodeTable(size_t tableSize)
+    : tableSize_(tableSize), buckets_(tableSize) {
   falseNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
   trueNode_ = getOrCreateNode(UINT_MAX - 1, nullptr, nullptr);
 
@@ -55,9 +59,10 @@ NodeTable::bddAnd(Node* x, Node* y) {
   }
   uint32_t m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::AND) %
+  auto hash = HASH_UO_O_3(
+                  reinterpret_cast<uintptr_t>(x),
+                  reinterpret_cast<uintptr_t>(y),
+                  Operator::AND) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::AND);
   if (cached) {
@@ -90,9 +95,10 @@ NodeTable::bddOr(Node* x, Node* y) {
   }
   int m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::OR) %
+  auto hash = HASH_UO_O_3(
+                  reinterpret_cast<uintptr_t>(x),
+                  reinterpret_cast<uintptr_t>(y),
+                  Operator::OR) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::OR);
   if (cached) {
@@ -119,7 +125,8 @@ NodeTable::bddNot(Node* x) {
   }
 
   // auto hash = TRIPLEp(x.node(), nullptr, 2) % Nanobdd::cacheSize_;
-  auto hash = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x), 0, Operator::NOT) % cache->size();
+  auto hash = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x), 0, Operator::NOT) %
+      cache->size();
   auto cached = cache->lookup(hash, x, nullptr, Operator::NOT);
   if (cached) {
     return cached;
@@ -150,9 +157,10 @@ NodeTable::bddXor(Node* x, Node* y) {
   }
   int m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::XOR) %
+  auto hash = HASH_UO_O_3(
+                  reinterpret_cast<uintptr_t>(x),
+                  reinterpret_cast<uintptr_t>(y),
+                  Operator::XOR) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::XOR);
   if (cached) {
@@ -180,9 +188,10 @@ NodeTable::bddDiff(Node* x, Node* y) {
 
   int m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::DIFF) %
+  auto hash = HASH_UO_O_3(
+                  reinterpret_cast<uintptr_t>(x),
+                  reinterpret_cast<uintptr_t>(y),
+                  Operator::DIFF) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::DIFF);
   if (cached) {
@@ -210,9 +219,10 @@ NodeTable::bddImp(Node* x, Node* y) {
 
   int m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::IMP) %
+  auto hash = HASH_UO_O_3(
+                  reinterpret_cast<uintptr_t>(x),
+                  reinterpret_cast<uintptr_t>(y),
+                  Operator::IMP) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::IMP);
   if (cached) {
@@ -272,6 +282,46 @@ NodeTable::getOrCreateNode(uint32_t level, Node* low, Node* high) {
 Node*
 NodeTable::operator()(uint32_t level, Node* low, Node* high) {
   return getOrCreateNode(level, low, high);
+}
+
+void
+NodeTable::gc() {
+  // first mark all used nodes
+  for (auto& bucket : buckets_) {
+    std::for_each(
+        std::execution::par,
+        bucket.nodes().begin(),
+        bucket.nodes().end(),
+        [this](auto& node) {
+          if (*node.refCount > 0) {
+            mark(&node);
+          }
+        });
+  }
+  for (auto& bucket : buckets_) {
+    std::vector<Node*> filterNodes;
+    std::remove_copy_if(
+        bucket.nodes().begin(),
+        bucket.nodes().end(),
+        std::back_inserter(filterNodes),
+        [](const auto& node) {
+          return node.inUse == false;
+        });
+    bucket.nodes().clear();
+    for (auto node : filterNodes) {
+      bucket.nodes().push_back(node);
+    }
+  }
+}
+
+void
+NodeTable::mark(Node* node) {
+  if (!node) {
+    return;
+  }
+  node->inUse = true;
+  mark(node->low);
+  mark(node->high);
 }
 
 } // namespace nanobdd

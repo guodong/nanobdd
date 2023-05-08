@@ -63,4 +63,9 @@ bddTrue() {
   return Bdd(nodeTable->trueNode());
 }
 
+void
+gc() {
+  nodeTable->gc();
+}
+
 } // namespace nanobdd

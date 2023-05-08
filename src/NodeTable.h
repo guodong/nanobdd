@@ -32,6 +32,8 @@ class Bucket {
     return &(*it);
   }
 
+  tbb::concurrent_vector<Node>& nodes() { return nodes_; }
+
  private:
   tbb::concurrent_vector<Node> nodes_;
   std::unique_ptr<std::mutex> mutex_;
@@ -71,6 +73,8 @@ class NodeTable {
    */
   Node* operator()(uint32_t level, Node* low, Node* high);
 
+  void gc();
+
  private:
   Node* getOrCreateNode(uint32_t level, Node* low, Node* high);
   Node* combine(uint32_t level, Node* low, Node* high);
@@ -80,6 +84,7 @@ class NodeTable {
   Node* negCof(Node* x, int id);
 
   Node* posCof(Node* x, int id);
+  void mark(Node* node);
 
   size_t tableSize_;
   std::vector<Bucket> buckets_;

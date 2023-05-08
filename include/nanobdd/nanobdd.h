@@ -47,4 +47,6 @@ Bdd getVar(uint32_t id);
  */
 Bdd getNvar(uint32_t id);
 
+void gc();
+
 } // namespace nanobdd
