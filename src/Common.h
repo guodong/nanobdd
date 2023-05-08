@@ -2,6 +2,6 @@
 
 namespace nanobdd {
 
-enum Operator { AND = 0, OR = 1, NOT = 2, DIFF = 3 };
+enum Operator { AND = 0, OR = 1, NOT = 2, XOR = 3, DIFF = 4 };
 
 }

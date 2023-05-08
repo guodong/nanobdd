@@ -130,6 +130,38 @@ NodeTable::bddNot(Node* x) {
 }
 
 Node*
+NodeTable::bddXor(Node* x, Node* y) {
+  if (x == y) {
+    return falseNode_;
+  }
+  if (isFalse(x)) {
+    return y;
+  }
+  if (isFalse(y)) {
+    return x;
+  }
+  int m = std::min(x->level, y->level);
+
+  auto hash =
+      HASH_UO_O_3(
+          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::XOR) %
+      cache->size();
+  auto cached = cache->lookup(hash, x, y, Operator::XOR);
+  if (cached) {
+    return cached;
+  }
+
+  auto fLow = bddXor(negCof(x, m), negCof(y, m));
+  auto fHigh = bddXor(posCof(x, m), posCof(y, m));
+
+  auto res = combine(m, fLow, fHigh);
+
+  cache->insert(hash, res, x, y, Operator::XOR);
+
+  return res;
+}
+
+Node*
 NodeTable::bddDiff(Node* x, Node* y) {
   if (x == y || isFalse(x) || isTrue(y)) {
     return falseNode_;

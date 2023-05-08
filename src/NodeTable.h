@@ -62,6 +62,7 @@ class NodeTable {
   Node* bddAnd(Node* x, Node* y);
   Node* bddOr(Node* x, Node* y);
   Node* bddNot(Node* x);
+  Node* bddXor(Node* x, Node* y);
   Node* bddDiff(Node* x, Node* y);
 
   /**

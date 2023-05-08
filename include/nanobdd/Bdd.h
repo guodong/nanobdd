@@ -28,6 +28,10 @@ class Bdd {
 
   Bdd operator!() const;
 
+  Bdd operator^(const Bdd& r) const;
+
+  Bdd& operator^=(const Bdd& r);
+
   Bdd operator-(const Bdd& r) const;
 
   Bdd& operator-=(const Bdd& r);

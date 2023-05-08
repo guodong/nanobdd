@@ -42,7 +42,7 @@ Cache::insert(uint32_t hash, Node* node, Node* left, Node* right, uint32_t op) {
 
 bool Cache::isCommutativeOperator(Operator op) {
   // and/or/not are commutative
-  return op <= 2;
+  return op <= 3;
 }
 
 } // namespace nanobdd

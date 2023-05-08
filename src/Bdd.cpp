@@ -58,6 +58,17 @@ Bdd::operator!() const {
 }
 
 Bdd
+Bdd::operator^(const Bdd& r) const {
+  return nodeTable->bddXor(root_, r.root());
+}
+
+Bdd&
+Bdd::operator^=(const Bdd& r) {
+  root_ = nodeTable->bddXor(root_, r.root());
+  return *this;
+}
+
+Bdd
 Bdd::operator-(const Bdd& r) const {
   return nodeTable->bddDiff(root_, r.root());
 }
