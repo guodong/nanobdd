@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nanobdd/Node.h>
+#include <Node.h>
 
 namespace nanobdd {
 
