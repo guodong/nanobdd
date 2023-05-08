@@ -10,13 +10,21 @@ extern Cache* cache;
 NodeTable::NodeTable(size_t tableSize) : tableSize_(tableSize), buckets_(tableSize) {
   falseNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
   trueNode_ = getOrCreateNode(UINT_MAX - 1, nullptr, nullptr);
+
+  // terminal nodes always exists
+  falseNode_->ref();
+  trueNode_->ref();
 }
 
 Node*
 NodeTable::createVar(uint32_t id) {
   auto node = getOrCreateNode(id, falseNode_, trueNode_);
+  // varialbes always exists
+  node->ref();
   vars_.emplace(vars_.begin() + id, node);
   auto nvar = getOrCreateNode(id, trueNode_, falseNode_);
+  // neg varialbes always exists
+  nvar->ref();
   nvars_.emplace(nvars_.begin() + id, nvar);
   return vars_.at(id);
 }
