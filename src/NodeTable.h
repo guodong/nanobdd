@@ -62,7 +62,7 @@ class Bucket {
     newListNode->next = oldHead;
 
     // some other threads insert new nodes
-    while (listHead_.compare_exchange_weak(oldHead, newListNode, std::memory_order_relaxed) == false) {
+    while (listHead_.compare_exchange_weak(newListNode->next, newListNode, std::memory_order_relaxed) == false) {
       // auto head = listHead_.load();
       for (auto p = oldHead; p != newListNode->next && p != nullptr; p = p->next) {
         if (p->bddNode.low == low && p->bddNode.high == high && p->bddNode.level == level) {
@@ -70,8 +70,8 @@ class Bucket {
           return &p->bddNode;
         }
       }
-      
-      newListNode->next = oldHead;
+      // no need to assign next, cas will set it
+      // newListNode->next = oldHead;
     } 
 
     return &newListNode->bddNode;
