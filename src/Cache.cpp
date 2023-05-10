@@ -6,7 +6,10 @@ Node*
 Cache::lookup(uint32_t hash, Node* left, Node* right, Operator op) {
   auto& cache = getCache(op);
   auto& entry = cache.at(hash);
-  std::shared_lock<std::shared_mutex> lock(*entry.mutex);
+  if (!(*entry.mutex).try_lock_shared()) {
+    return nullptr;
+  }
+  // std::shared_lock<std::shared_mutex> lock(*entry.mutex);
   // if (entry.op == op && entry.left == left && entry.right == right) {
   //   return entry.node;
   // }
@@ -22,6 +25,7 @@ Cache::lookup(uint32_t hash, Node* left, Node* right, Operator op) {
       return entry.node;
     }
   }
+  (*entry.mutex).unlock_shared();
 
   return nullptr;
 }
