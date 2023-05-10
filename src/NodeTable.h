@@ -2,14 +2,23 @@
 
 #include <nanobdd/Node.h>
 #include <tbb/concurrent_vector.h>
+#include <atomic>
 #include <shared_mutex>
 
+#define NANOBDD_LOCK_FREE
+
 namespace nanobdd {
+
+struct ListNode {
+  Node bddNode;
+  ListNode* next;
+};
 
 class Bucket {
  public:
   Bucket() : mutex_(std::make_unique<std::mutex>()) {}
 
+#ifndef NANOBDD_LOCK_FREE
   // TBB approach
   Node*
   operator()(int level, Node* low, Node* high) {
@@ -31,11 +40,49 @@ class Bucket {
     auto it = nodes_.push_back(std::move(node));
     return &(*it);
   }
+#endif
+
+#ifdef NANOBDD_LOCK_FREE
+  // lock-free approach
+  Node*
+  operator()(int level, Node* low, Node* high) {
+    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
+      if (p->bddNode.low == low && p->bddNode.high == high && p->bddNode.level == level) {
+        return &p->bddNode;
+      }
+    }
+
+    // auto node = new Node(level, low, high);
+    ListNode *oldHead = listHead_.load();
+    auto newListNode = new ListNode();
+    newListNode->bddNode.level = level;
+    newListNode->bddNode.low = low;
+    newListNode->bddNode.high = high;
+    newListNode->next = oldHead;
+
+    // some other threads insert new nodes
+    while (listHead_.compare_exchange_weak(oldHead, newListNode) == false) {
+      // auto head = listHead_.load();
+      for (auto p = oldHead; p != newListNode->next && p != nullptr; p = p->next) {
+        if (p->bddNode.low == low && p->bddNode.high == high && p->bddNode.level == level) {
+          free(newListNode);
+          return &p->bddNode;
+        }
+      }
+      
+      newListNode->next = oldHead;
+    } 
+
+    return &newListNode->bddNode;
+  }
 
  private:
   tbb::concurrent_vector<Node> nodes_;
   std::unique_ptr<std::mutex> mutex_;
+
+  std::atomic<ListNode*> listHead_;
 };
+#endif
 
 class NodeTable {
  public:
