@@ -4,6 +4,7 @@
 #include <tbb/concurrent_vector.h>
 #include <atomic>
 #include <shared_mutex>
+#include <tbb/task_group.h>
 
 #define NANOBDD_LOCK_FREE
 
@@ -46,7 +47,7 @@ class Bucket {
   // lock-free approach
   Node*
   operator()(int level, Node* low, Node* high) {
-    ListNode *oldHead = listHead_.load();
+    ListNode *oldHead = listHead_.load(std::memory_order_relaxed);
     for (auto p = oldHead; p != nullptr; p = p->next) {
       if (p->bddNode.low == low && p->bddNode.high == high && p->bddNode.level == level) {
         return &p->bddNode;
@@ -61,7 +62,7 @@ class Bucket {
     newListNode->next = oldHead;
 
     // some other threads insert new nodes
-    while (listHead_.compare_exchange_weak(oldHead, newListNode) == false) {
+    while (listHead_.compare_exchange_weak(oldHead, newListNode, std::memory_order_relaxed) == false) {
       // auto head = listHead_.load();
       for (auto p = oldHead; p != newListNode->next && p != nullptr; p = p->next) {
         if (p->bddNode.low == low && p->bddNode.high == high && p->bddNode.level == level) {
@@ -134,6 +135,7 @@ class NodeTable {
   Node* trueNode_;
   std::vector<Node*> vars_;
   std::vector<Node*> nvars_;
+  tbb::task_group g;
 };
 
 } // namespace nanobdd
