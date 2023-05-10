@@ -46,14 +46,14 @@ class Bucket {
   // lock-free approach
   Node*
   operator()(int level, Node* low, Node* high) {
-    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
+    ListNode *oldHead = listHead_.load();
+    for (auto p = oldHead; p != nullptr; p = p->next) {
       if (p->bddNode.low == low && p->bddNode.high == high && p->bddNode.level == level) {
         return &p->bddNode;
       }
     }
 
     // auto node = new Node(level, low, high);
-    ListNode *oldHead = listHead_.load();
     auto newListNode = new ListNode();
     newListNode->bddNode.level = level;
     newListNode->bddNode.low = low;
