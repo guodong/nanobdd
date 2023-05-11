@@ -1,7 +1,14 @@
 # Nanobdd
 First-ever high-performance thread-safe BDD (Binary Decision Diagrams) library.
 
-To our knowledge, nanobdd is The world's fastest BDD library so far.
+As of our research, Nanobdd is currently the fastest BDD library available, achieving exceptional performance in various benchmarks and use cases.
+
+# Features
+- Fully **lock-free** concurrency
+- **Automatic referencing** for BDD nodes
+- User controlled **garbage collection**
+- Easy-to-use APIs by C++ **operator overloading**
+- And of cause, it is **thread-safe**!
 
 # Install
 ## Dependencies
