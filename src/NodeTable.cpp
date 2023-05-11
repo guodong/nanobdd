@@ -1,11 +1,16 @@
 #include <Cache.h>
+#include <LockFreeCache.h>
 #include <Common.h>
 #include <Hash.h>
 #include <NodeTable.h>
 
 namespace nanobdd {
 
+#ifdef NANOBDD_LOCK_FREE_CACHE
+extern LockFreeCache* cache;
+#else
 extern Cache* cache;
+#endif
 
 NodeTable::NodeTable(size_t tableSize) : tableSize_(tableSize), buckets_(tableSize) {
   falseNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
@@ -181,7 +186,7 @@ NodeTable::bddDiff(Node* x, Node* y) {
   int m = std::min(x->level, y->level);
 
   auto hash =
-      HASH_UO_O_3(
+      HASH_O_3(
           reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::DIFF) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::DIFF);
@@ -211,7 +216,7 @@ NodeTable::bddImp(Node* x, Node* y) {
   int m = std::min(x->level, y->level);
 
   auto hash =
-      HASH_UO_O_3(
+      HASH_O_3(
           reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::IMP) %
       cache->size();
   auto cached = cache->lookup(hash, x, y, Operator::IMP);

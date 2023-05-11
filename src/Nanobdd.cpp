@@ -1,4 +1,6 @@
 #include <Cache.h>
+#include <Common.h>
+#include <LockFreeCache.h>
 #include <NodeTable.h>
 #include <Prime.h>
 #include <assert.h>
@@ -27,14 +29,22 @@
 namespace nanobdd {
 
 NodeTable* nodeTable;
+#ifdef NANOBDD_LOCK_FREE_CACHE
+LockFreeCache* cache;
+#else
 Cache* cache;
+#endif
 
 static size_t varNum_;
 
 void
 init(size_t tableSize, size_t cacheSize, size_t varNum) {
   nodeTable = new NodeTable(bdd_prime_gte(tableSize));
+#ifdef NANOBDD_LOCK_FREE_CACHE
+  cache = new LockFreeCache(bdd_prime_gte(cacheSize));
+#else
   cache = new Cache(bdd_prime_gte(cacheSize));
+#endif
   for (int id = 0; id < varNum; ++id) {
     nodeTable->createVar(id);
   }
@@ -61,6 +71,11 @@ bddFalse() {
 Bdd
 bddTrue() {
   return Bdd(nodeTable->trueNode());
+}
+
+size_t
+numNodes() {
+  return nodeTable->numNodes();
 }
 
 } // namespace nanobdd

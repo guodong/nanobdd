@@ -27,8 +27,8 @@ struct Node {
 
   std::unique_ptr<std::atomic_uint32_t> refCount;
   uint32_t level;
-  Node* low;
-  Node* high;
+  Node* low{nullptr};
+  Node* high{nullptr};
 };
 
 } // namespace nanobdd
