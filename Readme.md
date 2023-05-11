@@ -8,7 +8,7 @@ As of our research, Nanobdd is currently the fastest BDD library available, achi
 - **Automatic referencing** for BDD nodes
 - User controlled **garbage collection**
 - Easy-to-use APIs by C++ **operator overloading**
-- And of cause, it is **thread-safe**!
+- And of course, it is **thread-safe**!
 
 # Install
 ## Dependencies
