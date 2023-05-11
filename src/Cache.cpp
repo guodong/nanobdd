@@ -13,7 +13,8 @@ Cache::lookup(uint32_t hash, Node* left, Node* right, Operator op) {
   // if (entry.op == op && entry.left == left && entry.right == right) {
   //   return entry.node;
   // }
-  if (!isCommutativeOperator(op) && entry.op == op && entry.left == left && entry.right == right) {
+  if (!isCommutativeOperator(op) && entry.op == op && entry.left == left &&
+      entry.right == right) {
     return entry.node;
   } else {
     // and/or are commutative.
@@ -44,7 +45,8 @@ Cache::insert(uint32_t hash, Node* node, Node* left, Node* right, uint32_t op) {
   }
 }
 
-bool Cache::isCommutativeOperator(Operator op) {
+bool
+Cache::isCommutativeOperator(Operator op) {
   // and/or/not are commutative
   return op <= 3;
 }

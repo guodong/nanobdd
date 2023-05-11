@@ -1,13 +1,13 @@
 #pragma once
 
-#include <nanobdd/Node.h>
 #include <Bucket.h>
-#include <LockFreeBucket.h>
 #include <Common.h>
+#include <LockFreeBucket.h>
+#include <nanobdd/Node.h>
 #include <atomic>
 
 namespace nanobdd {
-  
+
 class NodeTable {
  public:
   NodeTable(size_t tableSize);
@@ -23,10 +23,14 @@ class NodeTable {
   }
 
   Node* createVar(uint32_t id);
-  Node* getVar(uint32_t id) {
+
+  Node*
+  getVar(uint32_t id) {
     return vars_.at(id);
   };
-  Node* getNvar(uint32_t id) {
+  
+  Node*
+  getNvar(uint32_t id) {
     return nvars_.at(id);
   };
 
@@ -42,7 +46,8 @@ class NodeTable {
    */
   Node* operator()(uint32_t level, Node* low, Node* high);
 
-  size_t numNodes() {
+  size_t
+  numNodes() {
     size_t cnt = 0;
     for (auto& bucket : buckets_) {
       cnt += bucket.numNodes();

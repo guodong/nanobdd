@@ -32,7 +32,8 @@ class Bucket {
     return &(*it);
   }
 
-  size_t numNodes() {
+  size_t
+  numNodes() {
     return nodes_.size();
   }
 

@@ -47,13 +47,12 @@ class Cache {
     }
   }
 
-  Node*
-  lookup(uint32_t hash, Node* left, Node* right, Operator op);
+  Node* lookup(uint32_t hash, Node* left, Node* right, Operator op);
 
-  void
-  insert(uint32_t hash, Node* node, Node* left, Node* right, uint32_t op);
+  void insert(uint32_t hash, Node* node, Node* left, Node* right, uint32_t op);
 
-  const size_t size() {
+  const size_t
+  size() {
     return size_;
   }
 
