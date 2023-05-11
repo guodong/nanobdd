@@ -64,7 +64,7 @@ g++ -o exe test.cpp -lnanobdd -ltbb
 If no exceptions, that means the assertions are passed.
 
 # Thread-safe concurrency
-The most powerful feature of nanobdd is that it is thread-safe, that means one can safely perform any bdd operations in different threads, nanobdd will handle all underlay data contensions.
+The most powerful feature of nanobdd is that it is thread-safe, which is achieved lock-free algorithms. One can safely perform any bdd operations in different threads, nanobdd will handle all underlay data contensions.
 An example for using C++17 parallel STL:
 ```c++
 std::for_each(
