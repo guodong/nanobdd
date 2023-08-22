@@ -3,6 +3,10 @@ First-ever high-performance thread-safe BDD (Binary Decision Diagrams) library.
 
 As of our research, Nanobdd is currently the fastest BDD library available, achieving exceptional performance in various benchmarks and use cases.
 
+This project is the public implementation of our SIGCOMM'23 poster:
+
+* Guo D, Luo J, Gao K, et al. Poster: Scaling Data Plane Verification with Throughput-Optimized Atomic Predicates. In Proceedings of the SIGCOMM '23 Poster and Demo Sessions (SIGCOMM '23), New York, NY, USA, Sep. 10 2023.
+
 # Features
 - Fully **lock-free** concurrency
 - **Automatic referencing** for BDD nodes
