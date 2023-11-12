@@ -18,7 +18,7 @@ This project is the public implementation of our SIGCOMM'23 poster:
 ## Dependencies
 Nanobdd depends on tbb for concurrent data structures. 
 
-CMake (>=v3.2) and g++(>=v9) is required for compilation.
+CMake (>=v3.2) and g++(>=v9) are required for compilation.
 
 ## Compile and install
 Nanobdd follows the standard CMake project structure, the quick installation steps are as follows:
