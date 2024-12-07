@@ -17,7 +17,9 @@ int main(int argc, char** argv) {
   auto xyZ = xy & !z;
 
   assert(xy == (xyz | xyZ));
-  assert(xy == nanobdd::bddFalse());
+  assert(xy != nanobdd::bddFalse());
+
+
 
   return 0;
 }
