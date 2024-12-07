@@ -78,4 +78,9 @@ numNodes() {
   return nodeTable->numNodes();
 }
 
+void
+gc() {
+  nodeTable->gc();
+}
+
 } // namespace nanobdd

@@ -55,6 +55,8 @@ class NodeTable {
     return cnt;
   }
 
+  void gc();
+
  private:
   Node* getOrCreateNode(uint32_t level, Node* low, Node* high);
   Node* combine(uint32_t level, Node* low, Node* high);

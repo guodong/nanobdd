@@ -49,4 +49,6 @@ Bdd getNvar(uint32_t id);
 
 size_t numNodes();
 
+void gc();
+
 } // namespace nanobdd

@@ -279,4 +279,20 @@ NodeTable::operator()(uint32_t level, Node* low, Node* high) {
   return getOrCreateNode(level, low, high);
 }
 
+void
+NodeTable::gc() {
+  // first mark all used nodes
+  for (auto& bucket : buckets_) {
+    bucket.markNodes();
+  }
+
+  // free those unmarked nodes
+  for (auto& bucket : buckets_) {
+    bucket.freeNodes();
+  }
+
+  for (auto& bucket : buckets_) {
+    bucket.unmarkNodes();
+  }
+}
 } // namespace nanobdd

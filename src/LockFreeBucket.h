@@ -2,6 +2,7 @@
 
 #include <nanobdd/Node.h>
 #include <atomic>
+#include <iostream>
 
 #define NANOBDD_LOCK_FREE
 
@@ -12,7 +13,7 @@ struct ListNode {
   ListNode* next;
 };
 
-class LockFreeBucket {
+    class LockFreeBucket {
  public:
   LockFreeBucket() {}
 
@@ -54,6 +55,45 @@ class LockFreeBucket {
       cnt++;
     }
     return cnt;
+  }
+
+  void debugNodes() {
+    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
+      std::cout << "Node: " << p->bddNode.level << " " <<
+      p->bddNode.low << " " << p->bddNode.high << " " <<
+      p->bddNode.refCount->load() << " " << p->bddNode.inUse << std::endl;
+    }
+  }
+
+  void markNodes() {
+    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
+        p->bddNode.mark();
+    }
+  }
+
+  void unmarkNodes() {
+    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
+        p->bddNode.unmark();
+    }
+  }
+
+  void freeNodes() {
+    // free nodes that are not in use
+    ListNode* head = nullptr;
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
+      if (p->bddNode.inUse == false) {
+        ListNode* next = p->next;
+        delete p;
+        p = next;
+      } else {
+        if (head == nullptr) {
+          head = p;
+        }
+        p = p->next;
+      }
+    }
+    listHead_.store(head);
   }
 
  private:
