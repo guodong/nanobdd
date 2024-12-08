@@ -60,6 +60,7 @@ struct ListNode {
   void debugNodes() {
     for (auto p = listHead_.load(); p != nullptr; p = p->next) {
       std::cout << "Node: " << p->bddNode.level << " " <<
+      &(p->bddNode) << " " <<
       p->bddNode.low << " " << p->bddNode.high << " " <<
       p->bddNode.refCount->load() << " " << p->bddNode.inUse << std::endl;
     }

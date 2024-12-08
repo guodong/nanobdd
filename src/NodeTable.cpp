@@ -295,4 +295,11 @@ NodeTable::gc() {
     bucket.unmarkNodes();
   }
 }
+
+void
+NodeTable::debugNodes() {
+  for (auto &bucket: buckets_) {
+    bucket.debugNodes();
+  }
+}
 } // namespace nanobdd

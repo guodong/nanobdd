@@ -83,4 +83,9 @@ gc() {
   nodeTable->gc();
 }
 
+void
+debugNodes() {
+  nodeTable->debugNodes();
+}
+
 } // namespace nanobdd

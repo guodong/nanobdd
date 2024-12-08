@@ -51,4 +51,6 @@ size_t numNodes();
 
 void gc();
 
+void debugNodes();
+
 } // namespace nanobdd

@@ -9,15 +9,26 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-add_library(${PROJECT_NAME}
+set(JAVA_AWT_LIBRARY "$ENV{JAVA_HOME}/lib/libawt.so")
+set(JAVA_JVM_LIBRARY "$ENV{JAVA_HOME}/lib/server/libjvm.so")
+
+set(JAVA_AWT_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
+set(JAVA_INCLUDE_PATH "$ENV{JAVA_HOME}/include")
+set(JAVA_INCLUDE_PATH2 "$ENV{JAVA_HOME}/include/linux")
+
+find_package(JNI REQUIRED)
+
+add_library(${PROJECT_NAME} SHARED
   src/Nanobdd.cpp
   src/Bdd.cpp
   src/Cache.cpp
   src/NodeTable.cpp
+  java/src/main/java/org/snlab/jni/org_snlab_jni_NanoBDD.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
   tbb
+  ${JNI_LIBRARIES}
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -25,6 +36,7 @@ target_include_directories(${PROJECT_NAME}
     # where the library itself will look for its internal headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${JNI_INCLUDE_DIRS}
   PUBLIC
     # where top-level project will look for the library's public headers
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
@@ -36,6 +48,7 @@ set(public_headers
   include/nanobdd/nanobdd.h
   include/nanobdd/Bdd.h
   include/nanobdd/Node.h
+  java/src/main/java/org/snlab/jni/org_snlab_jni_NanoBDD.h
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
