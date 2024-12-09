@@ -1,7 +1,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.snlab.jni</groupId>
-    <artifactId>NanoBDD</artifactId>
+    <groupId>org.snlab</groupId>
+    <artifactId>jni</artifactId>
     <version>1</version>
 
     <properties>
