@@ -74,6 +74,9 @@ class LockFreeCache {
   invalidateAll() {
     for (auto& entry : cache_) {
       entry.node = nullptr;
+      entry.left = nullptr;
+      entry.right = nullptr;
+      entry.useCount.store(0, std::memory_order_release);
     }
   }
 
