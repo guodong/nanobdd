@@ -1,6 +1,6 @@
 package org.snlab.jni;
 
-public class NanoBDD implements AutoCloseable {
+public class NanoBDD {
     private final long cxxThis;
     private boolean closed = false;
 
@@ -8,7 +8,6 @@ public class NanoBDD implements AutoCloseable {
         cxxThis = cxxConstruct(tableSize, cacheSize, numVar);
     };
 
-    @Override
     public void close() {
        if(!closed) {
            cxxDestroy(cxxThis);
@@ -16,7 +15,6 @@ public class NanoBDD implements AutoCloseable {
        }
     }
 
-    @Override
     @Deprecated
     protected void finalize() {
        close();

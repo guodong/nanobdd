@@ -58,23 +58,31 @@ struct ListNode {
   }
 
   void debugNodes() {
-    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
       std::cout << "Node: " << p->bddNode.level << " " <<
       &(p->bddNode) << " " <<
       p->bddNode.low << " " << p->bddNode.high << " " <<
       p->bddNode.refCount->load() << " " << p->bddNode.inUse << std::endl;
+      p = p->next;
     }
   }
 
   void markNodes() {
-    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
-        p->bddNode.mark();
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
+      if (*(p->bddNode.refCount) != 0) {
+        p->bddNode.markRec();
+      }
+      p = p->next;
     }
   }
 
   void unmarkNodes() {
-    for (auto p = listHead_.load(); p != nullptr; p = p->next) {
-        p->bddNode.unmark();
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
+      p->bddNode.unmark();
+      p = p->next;
     }
   }
 
@@ -83,7 +91,7 @@ struct ListNode {
     ListNode* head = nullptr;
     ListNode* p = listHead_.load();
     while (p != nullptr) {
-      if (p->bddNode.inUse == false) {
+      if (!p->bddNode.inUse) {
         ListNode* next = p->next;
         delete p;
         p = next;

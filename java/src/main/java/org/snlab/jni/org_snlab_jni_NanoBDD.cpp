@@ -1,5 +1,5 @@
 #include <jni.h>
-#include <cstdio>
+#include <iostream>
 #include "nanobdd/nanobdd.h"
 #include "nanobdd/Node.h"
 #include "nanobdd/Bdd.h"
@@ -17,7 +17,8 @@ JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_cxxConstruct
 JNIEXPORT void JNICALL Java_org_snlab_jni_NanoBDD_cxxDestroy
         (JNIEnv *, jclass, jlong) {
     // TODO: nanobdd cleanup is to be implemented
-    printf("NanoBDD cleanup is not implemented\n");
+    std::cout << "NanoBDD cleanup is not implemented" << std::endl;
+    return;
 }
 
 JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_var

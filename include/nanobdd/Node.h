@@ -26,32 +26,23 @@ struct Node {
   }
 
   void
-  mark() {
-    if (inUse) {
-      return;
-    } else if (refCount->load() != 0) {
+  markRec() {
+    if (!inUse) {
       inUse = true;
       if (low != nullptr) {
-        low->mark();
+        low->markRec();
       }
       if (high != nullptr) {
-        high->mark();
+        high->markRec();
       }
     }
   }
 
   void
   unmark() {
-    if (!inUse) {
-      return;
-    } else {
+    if (inUse) {
       inUse = false;
-      if (low != nullptr) {
-        low->unmark();
-      }
-      if (high != nullptr) {
-        high->unmark();
-      }
+      return;
     }
   }
 

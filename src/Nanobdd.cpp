@@ -80,7 +80,12 @@ numNodes() {
 
 void
 gc() {
+  std::cout << "GC Performance debugging:" << std::endl
+            << "  - Number of BDD nodes: " << nanobdd::numNodes() <<
+            std::endl;
   nodeTable->gc();
+  std::cout << "  - Number of BDD nodes after GC: " << nanobdd::numNodes() <<
+            std::endl;
 }
 
 void

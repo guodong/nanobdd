@@ -291,6 +291,7 @@ NodeTable::gc() {
     bucket.freeNodes();
   }
 
+  // unmark all nodes
   for (auto& bucket : buckets_) {
     bucket.unmarkNodes();
   }
