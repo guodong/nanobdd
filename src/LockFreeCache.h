@@ -70,6 +70,13 @@ class LockFreeCache {
     return size_;
   }
 
+  void
+  invalidateAll() {
+    for (auto& entry : cache_) {
+      entry.node = nullptr;
+    }
+  }
+
  private:
   bool
   isCommutativeOperator(Operator op) {

@@ -295,6 +295,10 @@ NodeTable::gc() {
   for (auto& bucket : buckets_) {
     bucket.unmarkNodes();
   }
+
+  #ifdef NANOBDD_LOCK_FREE_CACHE
+    cache->invalidateAll();
+  #endif
 }
 
 void
