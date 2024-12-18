@@ -86,23 +86,36 @@ struct ListNode {
     }
   }
 
+  // free nodes that are not in use
   void freeNodes() {
-    // free nodes that are not in use
-    ListNode* head = nullptr;
     ListNode* p = listHead_.load();
-    while (p != nullptr) {
-      if (!p->bddNode.inUse) {
-        ListNode* next = p->next;
-        delete p;
-        p = next;
+
+    // if the beginning nodes are not in use, delete them
+    while (p != nullptr && !p->bddNode.inUse) {
+      ListNode* tmp = p->next;
+      delete p;
+      p = tmp;
+    }
+
+    // then p should either be 1. nullptr or 2. not null and in use
+    listHead_.store(p);
+
+    // if p is nullptr, early return
+    if (p == nullptr) {
+      return;
+    }
+
+    // if p is not nullptr, we should delete following nodes that are not in use
+    ListNode* tmp;
+    while (p->next != nullptr) {
+      if (!p->next->bddNode.inUse) {
+        tmp = p->next->next;
+        delete p->next;
+        p->next = tmp;
       } else {
-        if (head == nullptr) {
-          head = p;
-        }
         p = p->next;
       }
     }
-    listHead_.store(head);
   }
 
  private:
