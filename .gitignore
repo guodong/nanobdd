@@ -1,3 +1,11 @@
 build
 html
 .vscode
+.idea
+cmake-build-debug-remote-host
+CMakeFiles
+CMakeCache.txt
+Makefile
+*.dylib
+*.so
+*.a

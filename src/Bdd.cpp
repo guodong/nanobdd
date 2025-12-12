@@ -11,13 +11,43 @@ Bdd::Bdd() : root_(nodeTable->falseNode()) {
 Bdd::Bdd(Node* root) : root_(root){
   root_->ref();
 };
-Bdd::~Bdd(){
-  root_->deref();
+Bdd::Bdd(const Bdd &other) : root_(other.root_) {
+  if (root_ != nullptr) {
+    root_->ref();
+  }
+}
+
+Bdd::Bdd(Bdd &&other) noexcept : root_(other.root_) { other.root_ = nullptr; }
+Bdd::~Bdd() {
+  if (root_ != nullptr) {
+    root_->deref();
+  }
 };
 
-Bdd&
-Bdd::operator=(Bdd r) {
-  root_ = r.root();
+Bdd &Bdd::operator=(const Bdd &r) {
+  if (this == &r) {
+    return *this;
+  }
+  auto *newRoot = r.root();
+  if (newRoot != nullptr) {
+    newRoot->ref();
+  }
+  if (root_ != nullptr) {
+    root_->deref();
+  }
+  root_ = newRoot;
+  return *this;
+}
+
+Bdd &Bdd::operator=(Bdd &&r) noexcept {
+  if (this == &r) {
+    return *this;
+  }
+  if (root_ != nullptr) {
+    root_->deref();
+  }
+  root_ = r.root_;
+  r.root_ = nullptr;
   return *this;
 }
 
