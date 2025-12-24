@@ -8,13 +8,23 @@
 namespace nanobdd {
 
 /**
- * @brief Init nanobdd, this should only be called once.
+ * @brief Init nanobdd.
+ *
+ * Call clear() before reinitializing the library.
  *
  * @param tableSize The node table size
  * @param cacheSize The cache size
  * @param varNum The number of variables
  */
 void init(size_t tableSize, size_t cacheSize, size_t varNum);
+
+/**
+ * @brief Clear all state inside nanobdd.
+ *
+ * After calling this, all existing Bdd objects become invalid. Call init()
+ * again before using the library.
+ */
+void clear();
 
 /**
  * @brief Get the false terminal node as a Bdd

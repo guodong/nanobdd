@@ -1,21 +1,23 @@
 #pragma once
 
 #include <atomic>
-#include <memory>
 #include <stdint.h>
 
 namespace nanobdd {
 
 struct Node {
-  Node() : refCount(std::make_unique<std::atomic_uint32_t>(0)), inUse(false) {}
+  Node()
+      : refCount(0), level(0), low(nullptr), high(nullptr), inUse(false),
+        nextFree(nullptr) {}
 
   Node(uint32_t _level, Node *_low, Node *_high)
-      : level(_level), low(_low), high(_high),
-        refCount(std::make_unique<std::atomic_uint32_t>(0)) {}
+      : refCount(0), level(_level), low(_low), high(_high), inUse(false),
+        nextFree(nullptr) {}
 
-  inline void ref() { (*refCount)++; }
+  // refCount is a standalone counter used for GC eligibility only.
+  inline void ref() { refCount.fetch_add(1, std::memory_order_seq_cst); }
 
-  inline void deref() { (*refCount)--; }
+  inline void deref() { refCount.fetch_sub(1, std::memory_order_seq_cst); }
 
   void markRec() {
     if (!inUse) {
@@ -36,7 +38,7 @@ struct Node {
     }
   }
 
-  std::unique_ptr<std::atomic_uint32_t> refCount;
+  std::atomic_uint32_t refCount;
   uint32_t level;
   Node *low{nullptr};
   Node *high{nullptr};

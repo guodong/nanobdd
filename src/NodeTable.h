@@ -56,9 +56,9 @@ private:
   void growBucketsLocked(size_t newSize);
   void maybeGrowBuckets();
 
-  Node *negCof(Node *x, int id);
+  Node *negCof(Node *x, uint32_t id);
 
-  Node *posCof(Node *x, int id);
+  Node *posCof(Node *x, uint32_t id);
 
   size_t tableSize_;
   std::vector<std::unique_ptr<Bucket>> buckets_;

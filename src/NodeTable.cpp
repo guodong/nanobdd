@@ -103,7 +103,7 @@ Node *NodeTable::bddOr(Node *x, Node *y) {
   if (isFalse(y)) {
     return x;
   }
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
   auto hashVal = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x),
                              reinterpret_cast<uintptr_t>(y), Operator::OR) %
@@ -160,7 +160,7 @@ Node *NodeTable::bddXor(Node *x, Node *y) {
   if (isFalse(y)) {
     return x;
   }
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
   auto hashVal = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x),
                              reinterpret_cast<uintptr_t>(y), Operator::XOR) %
@@ -188,7 +188,7 @@ Node *NodeTable::bddDiff(Node *x, Node *y) {
     return x;
   }
 
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
   auto hashVal = HASH_O_3(reinterpret_cast<uintptr_t>(x),
                           reinterpret_cast<uintptr_t>(y), Operator::DIFF) %
@@ -216,7 +216,7 @@ Node *NodeTable::bddImp(Node *x, Node *y) {
     return y;
   }
 
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
   auto hashVal = HASH_O_3(reinterpret_cast<uintptr_t>(x),
                           reinterpret_cast<uintptr_t>(y), Operator::IMP) %
@@ -236,14 +236,14 @@ Node *NodeTable::bddImp(Node *x, Node *y) {
   return res;
 }
 
-inline Node *NodeTable::negCof(Node *x, int id) {
+inline Node *NodeTable::negCof(Node *x, uint32_t id) {
   if (id < x->level) {
     return x;
   }
   return x->low;
 }
 
-inline Node *NodeTable::posCof(Node *x, int id) {
+inline Node *NodeTable::posCof(Node *x, uint32_t id) {
   if (id < x->level) {
     return x;
   }
@@ -292,7 +292,7 @@ Node *NodeTable::getOrCreateNode(uint32_t level, Node *low, Node *high) {
 void NodeTable::performMaintenance() {
   std::unique_lock<std::shared_mutex> lock(tableMutex_);
 
-  size_t freed = gcLocked();
+  gcLocked();
   if (!allocator_.hasFreeSlot()) {
     allocator_.grow();
   }

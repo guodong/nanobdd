@@ -60,13 +60,11 @@ class LockFreeCache {
       entry.left = left;
       entry.right = right;
       entry.op = op;
-      int exp = -1;
       entry.useCount.store(0, std::memory_order_release);
     }
   }
 
-  const size_t
-  size() {
+  size_t size() const {
     return size_;
   }
 

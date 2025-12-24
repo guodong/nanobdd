@@ -19,8 +19,9 @@ add_library(${PROJECT_NAME} SHARED
   src/Nanobdd.cpp
   src/Bdd.cpp
   src/Cache.cpp
-        src/NodeAllocator.cpp
+  src/NodeAllocator.cpp
   src/NodeTable.cpp
+  src/capi.cpp
   java/src/main/java/org/snlab/jni/org_snlab_jni_NanoBDD.cpp
 )
 
@@ -48,6 +49,7 @@ set(public_headers
   include/nanobdd/nanobdd.h
   include/nanobdd/Bdd.h
   include/nanobdd/Node.h
+  include/nanobdd/capi.h
   java/src/main/java/org/snlab/jni/org_snlab_jni_NanoBDD.h
 )
 

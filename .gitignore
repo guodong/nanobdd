@@ -9,3 +9,9 @@ Makefile
 *.dylib
 *.so
 *.a
+rust/target
+target/
+cmake-build-debug/
+build-fix/
+build-jdk17/
+Testing/

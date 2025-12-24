@@ -73,7 +73,7 @@ inline size_t Bucket::numNodes() const {
 
 inline void Bucket::markNodesUnsafe() {
   for (auto *node : nodes_) {
-    if (*(node->refCount) != 0) {
+    if (node->refCount.load(std::memory_order_seq_cst) != 0) {
       node->markRec();
     }
   }
@@ -84,7 +84,7 @@ inline size_t Bucket::sweepNodesUnsafe(std::vector<Node *> &freed) {
   auto it = nodes_.begin();
   while (it != nodes_.end()) {
     Node *node = *it;
-    if (!node->inUse && node->refCount->load(std::memory_order_relaxed) == 0) {
+    if (!node->inUse && node->refCount.load(std::memory_order_relaxed) == 0) {
       freed.push_back(node);
       it = nodes_.erase(it);
       ++removed;
@@ -105,7 +105,8 @@ inline void Bucket::debugNodes() const {
   std::shared_lock<std::shared_mutex> lock(mutex_);
   for (auto *node : nodes_) {
     std::cout << "Node: " << node->level << " " << node << " " << node->low
-              << " " << node->high << " " << node->refCount->load() << " "
+              << " " << node->high << " "
+              << node->refCount.load(std::memory_order_seq_cst) << " "
               << node->inUse << std::endl;
   }
 }

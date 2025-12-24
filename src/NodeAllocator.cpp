@@ -37,7 +37,7 @@ void NodeAllocator::free(Node *node) {
   node->low = nullptr;
   node->high = nullptr;
   node->inUse = false;
-  node->refCount->store(0, std::memory_order_relaxed);
+  node->refCount.store(0, std::memory_order_relaxed);
   pushFree(node);
 }
 
@@ -123,6 +123,6 @@ void NodeAllocator::resetNode(Node *node, uint32_t level, Node *low,
   node->high = high;
   node->inUse = false;
   node->nextFree = nullptr;
-  node->refCount->store(0, std::memory_order_relaxed);
+  node->refCount.store(0, std::memory_order_relaxed);
 }
 } // namespace nanobdd

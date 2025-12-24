@@ -2,7 +2,6 @@
 #include "nanobdd/Bdd.h"
 #include "nanobdd/Node.h"
 #include "nanobdd/nanobdd.h"
-#include <iostream>
 #include <jni.h>
 
 using namespace nanobdd;
@@ -17,9 +16,7 @@ JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_cxxConstruct(
 
 JNIEXPORT void JNICALL Java_org_snlab_jni_NanoBDD_cxxDestroy(JNIEnv *, jclass,
                                                              jlong) {
-  // TODO: nanobdd cleanup is to be implemented
-  std::cout << "NanoBDD cleanup is not implemented" << std::endl;
-  return;
+  nanobdd::clear();
 }
 
 JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_var(JNIEnv *env, jobject obj,
@@ -30,6 +27,11 @@ JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_var(JNIEnv *env, jobject obj,
 JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_nvar(JNIEnv *env,
                                                         jobject obj, jint idx) {
   return (jlong)nanobdd::getNvar((uint32_t)idx).root();
+}
+
+JNIEXPORT void JNICALL Java_org_snlab_jni_NanoBDD_clear(JNIEnv *env,
+                                                        jobject obj) {
+  nanobdd::clear();
 }
 
 JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_getTrue(JNIEnv *env,

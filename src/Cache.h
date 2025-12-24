@@ -23,7 +23,7 @@ class Cache {
     }
   }
 
-  Cache(size_t size, bool opCache)
+  Cache(size_t size, [[maybe_unused]] bool opCache)
       : size_(size),
         cache_(size),
         andCache_(size),
@@ -51,26 +51,16 @@ class Cache {
 
   void insert(uint32_t hash, Node* node, Node* left, Node* right, uint32_t op);
 
-  const size_t
-  size() {
+  size_t size() const {
     return size_;
   }
 
  private:
   bool isCommutativeOperator(Operator op);
 
-  std::vector<CacheEntry>&
-  getCache(uint32_t op) {
+  std::vector<CacheEntry>& getCache(uint32_t op) {
+    (void)op;
     return cache_;
-    if (op == 0) {
-      return andCache_;
-    } else if (op == 1) {
-      return orCache_;
-    } else if (op == 2) {
-      return notCache_;
-    } else {
-      return diffCache_;
-    }
   }
 
   size_t size_;

@@ -28,69 +28,61 @@
 
 namespace nanobdd {
 
-NodeTable* nodeTable;
+NodeTable *nodeTable;
 #ifdef NANOBDD_LOCK_FREE_CACHE
-LockFreeCache* cache;
+LockFreeCache *cache;
 #else
-Cache* cache;
+Cache *cache;
 #endif
 
 static size_t varNum_;
 
-void
-init(size_t tableSize, size_t cacheSize, size_t varNum) {
+void init(size_t tableSize, size_t cacheSize, size_t varNum) {
+  if (nodeTable != nullptr || cache != nullptr) {
+    return;
+  }
   nodeTable = new NodeTable(bdd_prime_gte(tableSize));
 #ifdef NANOBDD_LOCK_FREE_CACHE
   cache = new LockFreeCache(bdd_prime_gte(cacheSize));
 #else
   cache = new Cache(bdd_prime_gte(cacheSize));
 #endif
-  for (int id = 0; id < varNum; ++id) {
-    nodeTable->createVar(id);
+  for (size_t id = 0; id < varNum; ++id) {
+    nodeTable->createVar(static_cast<uint32_t>(id));
   }
   varNum_ = varNum;
 }
 
-Bdd
-getVar(uint32_t id) {
+void clear() {
+#ifdef NANOBDD_LOCK_FREE_CACHE
+  delete cache;
+#else
+  delete cache;
+#endif
+  cache = nullptr;
+  delete nodeTable;
+  nodeTable = nullptr;
+  varNum_ = 0;
+}
+
+Bdd getVar(uint32_t id) {
   assert(id < varNum_);
   return nodeTable->getVar(id);
 }
 
-Bdd
-getNvar(uint32_t id) {
+Bdd getNvar(uint32_t id) {
   assert(id < varNum_);
   return nodeTable->getNvar(id);
 }
 
-Bdd
-bddFalse() {
-  return Bdd(nodeTable->falseNode());
-}
+Bdd bddFalse() { return Bdd(nodeTable->falseNode()); }
 
-Bdd
-bddTrue() {
-  return Bdd(nodeTable->trueNode());
-}
+Bdd bddTrue() { return Bdd(nodeTable->trueNode()); }
 
-size_t
-numNodes() {
-  return nodeTable->numNodes();
-}
+size_t numNodes() { return nodeTable->numNodes(); }
 
-void
-gc() {
-  std::cout << "GC Performance debugging:" << std::endl
-            << "  - Number of BDD nodes: " << nanobdd::numNodes() <<
-            std::endl;
-  nodeTable->gc();
-  std::cout << "  - Number of BDD nodes after GC: " << nanobdd::numNodes() <<
-            std::endl;
-}
+void gc() { nodeTable->gc(); }
 
-void
-debugNodes() {
-  nodeTable->debugNodes();
-}
+void debugNodes() { nodeTable->debugNodes(); }
 
 } // namespace nanobdd

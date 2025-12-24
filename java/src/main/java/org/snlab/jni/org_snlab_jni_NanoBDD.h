@@ -41,6 +41,13 @@ JNIEXPORT jlong JNICALL Java_org_snlab_jni_NanoBDD_nvar(JNIEnv *, jobject,
 
 /*
  * Class:     org_snlab_jni_NanoBDD
+ * Method:    clear
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_snlab_jni_NanoBDD_clear(JNIEnv *, jobject);
+
+/*
+ * Class:     org_snlab_jni_NanoBDD
  * Method:    getTrue
  * Signature: ()J
  */

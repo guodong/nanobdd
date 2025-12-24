@@ -27,6 +27,8 @@ public class NanoBDD {
 
     public native long nvar(int idx);
 
+    public native void clear();
+
     public native long getTrue();
 
     public native long getFalse();

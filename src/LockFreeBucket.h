@@ -63,7 +63,8 @@ struct ListNode {
       std::cout << "Node: " << p->bddNode.level << " " <<
       &(p->bddNode) << " " <<
       p->bddNode.low << " " << p->bddNode.high << " " <<
-      p->bddNode.refCount->load() << " " << p->bddNode.inUse << std::endl;
+      p->bddNode.refCount.load(std::memory_order_seq_cst) << " "
+      << p->bddNode.inUse << std::endl;
       p = p->next;
     }
   }
@@ -71,7 +72,7 @@ struct ListNode {
   void markNodes() {
     ListNode* p = listHead_.load();
     while (p != nullptr) {
-      if (*(p->bddNode.refCount) != 0) {
+      if (p->bddNode.refCount.load(std::memory_order_seq_cst) != 0) {
         p->bddNode.markRec();
       }
       p = p->next;
