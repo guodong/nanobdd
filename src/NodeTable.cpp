@@ -1,51 +1,63 @@
 #include <Cache.h>
-#include <LockFreeCache.h>
 #include <Common.h>
 #include <Hash.h>
+#include <LockFreeCache.h>
 #include <NodeTable.h>
+#include <Prime.h>
+
+#include <algorithm>
+#include <climits>
+#include <shared_mutex>
 
 namespace nanobdd {
 
 #ifdef NANOBDD_LOCK_FREE_CACHE
-extern LockFreeCache* cache;
+extern LockFreeCache *cache;
 #else
-extern Cache* cache;
+extern Cache *cache;
 #endif
 
-NodeTable::NodeTable(size_t tableSize) : tableSize_(tableSize), buckets_(tableSize) {
+NodeTable::NodeTable(size_t tableSize)
+    : tableSize_(tableSize), allocator_(tableSize) {
+  buckets_.reserve(tableSize_);
+  for (size_t i = 0; i < tableSize_; ++i) {
+    buckets_.push_back(std::make_unique<Bucket>());
+  }
   falseNode_ = getOrCreateNode(UINT_MAX, nullptr, nullptr);
   trueNode_ = getOrCreateNode(UINT_MAX - 1, nullptr, nullptr);
 
-  // terminal nodes always exists
+  // terminal nodes always exist
   falseNode_->ref();
   trueNode_->ref();
 }
 
-Node*
-NodeTable::createVar(uint32_t id) {
+size_t NodeTable::hash(uint32_t level, Node *low, Node *high) const {
+  return HASH_O_3(level, reinterpret_cast<uintptr_t>(low),
+                  reinterpret_cast<uintptr_t>(high)) %
+         tableSize_;
+}
+
+Node *NodeTable::createVar(uint32_t id) {
   auto node = getOrCreateNode(id, falseNode_, trueNode_);
-  // varialbes always exists
+  // variables always exist
   node->ref();
   vars_.emplace(vars_.begin() + id, node);
   auto nvar = getOrCreateNode(id, trueNode_, falseNode_);
-  // neg varialbes always exists
+  // negated variables always exist
   nvar->ref();
   nvars_.emplace(nvars_.begin() + id, nvar);
   return vars_.at(id);
 }
 
-inline bool
-NodeTable::isFalse(const Node* node) const {
+inline bool NodeTable::isFalse(const Node *node) const {
   return node == falseNode_;
 }
 
-inline bool
-NodeTable::isTrue(const Node* node) const {
+inline bool NodeTable::isTrue(const Node *node) const {
   return node == trueNode_;
 }
 
-Node*
-NodeTable::bddAnd(Node* x, Node* y) {
+Node *NodeTable::bddAnd(Node *x, Node *y) {
   if (x == y) {
     return x;
   }
@@ -60,11 +72,10 @@ NodeTable::bddAnd(Node* x, Node* y) {
   }
   uint32_t m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::AND) %
-      cache->size();
-  auto cached = cache->lookup(hash, x, y, Operator::AND);
+  auto hashVal = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x),
+                             reinterpret_cast<uintptr_t>(y), Operator::AND) %
+                 cache->size();
+  auto cached = cache->lookup(hashVal, x, y, Operator::AND);
   if (cached) {
     return cached;
   }
@@ -74,13 +85,12 @@ NodeTable::bddAnd(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, Operator::AND);
+  cache->insert(hashVal, res, x, y, Operator::AND);
 
   return res;
 }
 
-Node*
-NodeTable::bddOr(Node* x, Node* y) {
+Node *NodeTable::bddOr(Node *x, Node *y) {
   if (x == y) {
     return x;
   }
@@ -93,13 +103,12 @@ NodeTable::bddOr(Node* x, Node* y) {
   if (isFalse(y)) {
     return x;
   }
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::OR) %
-      cache->size();
-  auto cached = cache->lookup(hash, x, y, Operator::OR);
+  auto hashVal = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x),
+                             reinterpret_cast<uintptr_t>(y), Operator::OR) %
+                 cache->size();
+  auto cached = cache->lookup(hashVal, x, y, Operator::OR);
   if (cached) {
     return cached;
   }
@@ -109,13 +118,12 @@ NodeTable::bddOr(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, Operator::OR);
+  cache->insert(hashVal, res, x, y, Operator::OR);
 
   return res;
 }
 
-Node*
-NodeTable::bddNot(Node* x) {
+Node *NodeTable::bddNot(Node *x) {
   if (isTrue(x)) {
     return falseNode_;
   }
@@ -123,9 +131,9 @@ NodeTable::bddNot(Node* x) {
     return trueNode_;
   }
 
-  // auto hash = TRIPLEp(x.node(), nullptr, 2) % Nanobdd::cacheSize_;
-  auto hash = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x), 0, Operator::NOT) % cache->size();
-  auto cached = cache->lookup(hash, x, nullptr, Operator::NOT);
+  auto hashVal = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x), 0, Operator::NOT) %
+                 cache->size();
+  auto cached = cache->lookup(hashVal, x, nullptr, Operator::NOT);
   if (cached) {
     return cached;
   }
@@ -137,13 +145,12 @@ NodeTable::bddNot(Node* x) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, nullptr, Operator::NOT);
+  cache->insert(hashVal, res, x, nullptr, Operator::NOT);
 
   return res;
 }
 
-Node*
-NodeTable::bddXor(Node* x, Node* y) {
+Node *NodeTable::bddXor(Node *x, Node *y) {
   if (x == y) {
     return falseNode_;
   }
@@ -153,13 +160,12 @@ NodeTable::bddXor(Node* x, Node* y) {
   if (isFalse(y)) {
     return x;
   }
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_UO_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::XOR) %
-      cache->size();
-  auto cached = cache->lookup(hash, x, y, Operator::XOR);
+  auto hashVal = HASH_UO_O_3(reinterpret_cast<uintptr_t>(x),
+                             reinterpret_cast<uintptr_t>(y), Operator::XOR) %
+                 cache->size();
+  auto cached = cache->lookup(hashVal, x, y, Operator::XOR);
   if (cached) {
     return cached;
   }
@@ -169,13 +175,12 @@ NodeTable::bddXor(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, Operator::XOR);
+  cache->insert(hashVal, res, x, y, Operator::XOR);
 
   return res;
 }
 
-Node*
-NodeTable::bddDiff(Node* x, Node* y) {
+Node *NodeTable::bddDiff(Node *x, Node *y) {
   if (x == y || isFalse(x) || isTrue(y)) {
     return falseNode_;
   }
@@ -183,13 +188,12 @@ NodeTable::bddDiff(Node* x, Node* y) {
     return x;
   }
 
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::DIFF) %
-      cache->size();
-  auto cached = cache->lookup(hash, x, y, Operator::DIFF);
+  auto hashVal = HASH_O_3(reinterpret_cast<uintptr_t>(x),
+                          reinterpret_cast<uintptr_t>(y), Operator::DIFF) %
+                 cache->size();
+  auto cached = cache->lookup(hashVal, x, y, Operator::DIFF);
   if (cached) {
     return cached;
   }
@@ -199,13 +203,12 @@ NodeTable::bddDiff(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, Operator::DIFF);
+  cache->insert(hashVal, res, x, y, Operator::DIFF);
 
   return res;
 }
 
-Node*
-NodeTable::bddImp(Node* x, Node* y) {
+Node *NodeTable::bddImp(Node *x, Node *y) {
   if (isFalse(x) || isTrue(y)) {
     return trueNode_;
   }
@@ -213,13 +216,12 @@ NodeTable::bddImp(Node* x, Node* y) {
     return y;
   }
 
-  int m = std::min(x->level, y->level);
+  uint32_t m = std::min(x->level, y->level);
 
-  auto hash =
-      HASH_O_3(
-          reinterpret_cast<uintptr_t>(x), reinterpret_cast<uintptr_t>(y), Operator::IMP) %
-      cache->size();
-  auto cached = cache->lookup(hash, x, y, Operator::IMP);
+  auto hashVal = HASH_O_3(reinterpret_cast<uintptr_t>(x),
+                          reinterpret_cast<uintptr_t>(y), Operator::IMP) %
+                 cache->size();
+  auto cached = cache->lookup(hashVal, x, y, Operator::IMP);
   if (cached) {
     return cached;
   }
@@ -229,54 +231,165 @@ NodeTable::bddImp(Node* x, Node* y) {
 
   auto res = combine(m, fLow, fHigh);
 
-  cache->insert(hash, res, x, y, Operator::IMP);
+  cache->insert(hashVal, res, x, y, Operator::IMP);
 
   return res;
 }
 
-inline Node*
-NodeTable::negCof(Node* x, int id) {
-  // check id <= root_
+inline Node *NodeTable::negCof(Node *x, uint32_t id) {
   if (id < x->level) {
     return x;
-  } else { // id == root_
-    return x->low;
   }
+  return x->low;
 }
 
-inline Node*
-NodeTable::posCof(Node* x, int id) {
-  // check id <= root_
+inline Node *NodeTable::posCof(Node *x, uint32_t id) {
   if (id < x->level) {
     return x;
-  } else { // id == root_
-    return x->high;
   }
+  return x->high;
 }
 
-inline Node*
-NodeTable::combine(uint32_t level, Node* low, Node* high) {
+inline Node *NodeTable::combine(uint32_t level, Node *low, Node *high) {
   if (low == high) {
     return low;
   }
   return getOrCreateNode(level, low, high);
 }
 
-Node*
-NodeTable::getOrCreateNode(uint32_t level, Node* low, Node* high) {
-  auto hash = HASH_O_3(
-                  level,
-                  reinterpret_cast<uintptr_t>(low),
-                  reinterpret_cast<uintptr_t>(high)) %
-      tableSize_;
-  auto& bucket = buckets_.at(hash);
+Node *NodeTable::getOrCreateNode(uint32_t level, Node *low, Node *high) {
+  while (true) {
+    std::shared_lock<std::shared_mutex> tableLock(tableMutex_);
 
-  return bucket(level, low, high);
+    auto idx = hash(level, low, high);
+    auto &bucket = buckets_.at(idx);
+
+    if (auto *existing = bucket->find(level, low, high)) {
+      return existing;
+    }
+
+    Node *candidate = allocator_.allocate(level, low, high);
+    if (candidate == nullptr) {
+      tableLock.unlock();
+      performMaintenance();
+      continue;
+    }
+
+    auto [node, inserted] = bucket->insertIfAbsent(level, low, high, candidate);
+    if (!inserted) {
+      allocator_.free(candidate);
+      return node;
+    }
+
+    nodeCount_.fetch_add(1, std::memory_order_relaxed);
+
+    tableLock.unlock();
+    maybeGrowBuckets();
+    return node;
+  }
 }
 
-Node*
-NodeTable::operator()(uint32_t level, Node* low, Node* high) {
+void NodeTable::performMaintenance() {
+  std::unique_lock<std::shared_mutex> lock(tableMutex_);
+
+  gcLocked();
+  if (!allocator_.hasFreeSlot()) {
+    allocator_.grow();
+  }
+
+  if (shouldGrowBucketsLocked()) {
+    auto newSize = bdd_prime_gte(static_cast<unsigned int>(tableSize_ * 2 + 1));
+    growBucketsLocked(newSize);
+  }
+}
+
+size_t NodeTable::gcLocked() {
+  std::vector<Node *> freed;
+  freed.reserve(nodeCount_.load(std::memory_order_relaxed));
+
+  for (auto &bucket : buckets_) {
+    bucket->markNodesUnsafe();
+  }
+
+  size_t removed = 0;
+  for (auto &bucket : buckets_) {
+    removed += bucket->sweepNodesUnsafe(freed);
+  }
+
+  for (auto &bucket : buckets_) {
+    bucket->unmarkNodesUnsafe();
+  }
+
+  allocator_.free(freed);
+  nodeCount_.fetch_sub(removed, std::memory_order_relaxed);
+
+#ifdef NANOBDD_LOCK_FREE_CACHE
+  cache->invalidateAll();
+#endif
+  return removed;
+}
+
+bool NodeTable::shouldGrowBucketsLocked() const {
+  if (tableSize_ == 0) {
+    return false;
+  }
+  double load =
+      static_cast<double>(nodeCount_.load(std::memory_order_relaxed)) /
+      static_cast<double>(tableSize_);
+  return load > maxLoadFactor_;
+}
+
+void NodeTable::growBucketsLocked(size_t newSize) {
+  if (newSize <= tableSize_) {
+    return;
+  }
+
+  std::vector<Node *> nodes;
+  nodes.reserve(nodeCount_.load(std::memory_order_relaxed));
+  for (auto &bucket : buckets_) {
+    bucket->extractAllNodes(nodes);
+  }
+
+  buckets_.clear();
+  buckets_.reserve(newSize);
+  for (size_t i = 0; i < newSize; ++i) {
+    buckets_.push_back(std::make_unique<Bucket>());
+  }
+  tableSize_ = newSize;
+
+  for (auto *node : nodes) {
+    auto idx = hash(node->level, node->low, node->high);
+    buckets_.at(idx)->insertExisting(node);
+  }
+}
+
+void NodeTable::maybeGrowBuckets() {
+  std::unique_lock<std::shared_mutex> lock(tableMutex_, std::try_to_lock);
+  if (!lock.owns_lock()) {
+    return;
+  }
+
+  if (!shouldGrowBucketsLocked()) {
+    return;
+  }
+
+  auto newSize = bdd_prime_gte(static_cast<unsigned int>(tableSize_ * 2 + 1));
+  growBucketsLocked(newSize);
+}
+
+Node *NodeTable::operator()(uint32_t level, Node *low, Node *high) {
   return getOrCreateNode(level, low, high);
+}
+
+void NodeTable::gc() {
+  std::unique_lock<std::shared_mutex> lock(tableMutex_);
+  gcLocked();
+}
+
+void NodeTable::debugNodes() {
+  for (auto &bucket : buckets_) {
+    bucket->debugNodes();
+  }
 }
 
 } // namespace nanobdd

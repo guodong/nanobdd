@@ -1,34 +1,50 @@
 #pragma once
 
-#include <stdint.h>
 #include <atomic>
-#include <memory>
+#include <stdint.h>
 
 namespace nanobdd {
 
 struct Node {
-  Node() : refCount(std::make_unique<std::atomic_uint32_t>(0)) {}
+  Node()
+      : refCount(0), level(0), low(nullptr), high(nullptr), inUse(false),
+        nextFree(nullptr) {}
 
-  Node(uint32_t _level, Node* _low, Node* _high)
-      : level(_level),
-        low(_low),
-        high(_high),
-        refCount(std::make_unique<std::atomic_uint32_t>(0)) {}
+  Node(uint32_t _level, Node *_low, Node *_high)
+      : refCount(0), level(_level), low(_low), high(_high), inUse(false),
+        nextFree(nullptr) {}
 
-  inline void
-  ref() {
-    (*refCount)++;
+  // refCount is a standalone counter used for GC eligibility only.
+  inline void ref() { refCount.fetch_add(1, std::memory_order_seq_cst); }
+
+  inline void deref() { refCount.fetch_sub(1, std::memory_order_seq_cst); }
+
+  void markRec() {
+    if (!inUse) {
+      inUse = true;
+      if (low != nullptr) {
+        low->markRec();
+      }
+      if (high != nullptr) {
+        high->markRec();
+      }
+    }
   }
 
-  inline void
-  deref() {
-    (*refCount)--;
+  void unmark() {
+    if (inUse) {
+      inUse = false;
+      return;
+    }
   }
 
-  std::unique_ptr<std::atomic_uint32_t> refCount;
+  std::atomic_uint32_t refCount;
   uint32_t level;
-  Node* low{nullptr};
-  Node* high{nullptr};
+  Node *low{nullptr};
+  Node *high{nullptr};
+  bool inUse;
+  // Used only by the allocator's free list; ignored by BDD logic.
+  Node *nextFree{nullptr};
 };
 
 } // namespace nanobdd

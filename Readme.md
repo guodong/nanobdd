@@ -12,6 +12,7 @@ This project is the public implementation of our SIGCOMM'23 poster:
 - **Automatic referencing** for BDD nodes
 - User controlled **garbage collection**
 - Easy-to-use APIs by C++ **operator overloading**
+- **Java JNI bindings** for Java developers
 - And of course, it is **thread-safe**!
 
 # Install
@@ -19,6 +20,9 @@ This project is the public implementation of our SIGCOMM'23 poster:
 Nanobdd depends on tbb for concurrent data structures. 
 
 CMake (>=v3.2) and g++(>=v9) are required for compilation.
+
+For Java JNI bindings, make sure that you have JDK 17 pre-installed and set the 
+JAVA_HOME environment variable correctly.
 
 ## Compile and install
 Nanobdd follows the standard CMake project structure, the quick installation steps are as follows:
@@ -30,6 +34,13 @@ cd build
 cmake ..
 make
 sudo make install
+```
+
+For Java bindings, use maven to compile and install:
+```
+cd java
+mvn install
+# should see repository/org/snlab/jni/NanoBDD/1/NanoBDD-1.jar in your $M2_HOME
 ```
 
 # Basic usage

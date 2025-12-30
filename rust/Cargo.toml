@@ -1,0 +1,13 @@
+[package]
+name = "nanobdd"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+name = "nanobdd"
+path = "src/lib.rs"
+
+[build-dependencies]
+cc = "1.0"
+pkg-config = "0.3"

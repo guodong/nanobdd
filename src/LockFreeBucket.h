@@ -2,6 +2,7 @@
 
 #include <nanobdd/Node.h>
 #include <atomic>
+#include <iostream>
 
 #define NANOBDD_LOCK_FREE
 
@@ -12,7 +13,7 @@ struct ListNode {
   ListNode* next;
 };
 
-class LockFreeBucket {
+    class LockFreeBucket {
  public:
   LockFreeBucket() {}
 
@@ -54,6 +55,68 @@ class LockFreeBucket {
       cnt++;
     }
     return cnt;
+  }
+
+  void debugNodes() {
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
+      std::cout << "Node: " << p->bddNode.level << " " <<
+      &(p->bddNode) << " " <<
+      p->bddNode.low << " " << p->bddNode.high << " " <<
+      p->bddNode.refCount.load(std::memory_order_seq_cst) << " "
+      << p->bddNode.inUse << std::endl;
+      p = p->next;
+    }
+  }
+
+  void markNodes() {
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
+      if (p->bddNode.refCount.load(std::memory_order_seq_cst) != 0) {
+        p->bddNode.markRec();
+      }
+      p = p->next;
+    }
+  }
+
+  void unmarkNodes() {
+    ListNode* p = listHead_.load();
+    while (p != nullptr) {
+      p->bddNode.unmark();
+      p = p->next;
+    }
+  }
+
+  // free nodes that are not in use
+  void freeNodes() {
+    ListNode* p = listHead_.load();
+
+    // if the beginning nodes are not in use, delete them
+    while (p != nullptr && !p->bddNode.inUse) {
+      ListNode* tmp = p->next;
+      delete p;
+      p = tmp;
+    }
+
+    // then p should either be 1. nullptr or 2. not null and in use
+    listHead_.store(p);
+
+    // if p is nullptr, early return
+    if (p == nullptr) {
+      return;
+    }
+
+    // if p is not nullptr, we should delete following nodes that are not in use
+    ListNode* tmp;
+    while (p->next != nullptr) {
+      if (!p->next->bddNode.inUse) {
+        tmp = p->next->next;
+        delete p->next;
+        p->next = tmp;
+      } else {
+        p = p->next;
+      }
+    }
   }
 
  private:
